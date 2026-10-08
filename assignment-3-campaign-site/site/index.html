@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Northwind | Seasonal Campaign</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      color: #17342b;
+      background: #f7f6f0;
+    }
+    header, main { max-width: 1000px; margin: auto; padding: 24px; }
+    header { display: flex; justify-content: space-between; align-items: center; }
+    .brand { font-weight: 800; font-size: 1.3rem; }
+    .hero {
+      margin-top: 32px;
+      padding: clamp(32px, 7vw, 72px);
+      border-radius: 24px;
+      background: #dcebe1;
+    }
+    .eyebrow { text-transform: uppercase; letter-spacing: .12em; }
+    h1 { max-width: 650px; font-size: clamp(2.5rem, 7vw, 5rem); line-height: 1; }
+    .button {
+      display: inline-block;
+      padding: 12px 18px;
+      border-radius: 8px;
+      background: #17342b;
+      color: white;
+      text-decoration: none;
+    }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+    .card { padding: 24px; background: white; border-radius: 14px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">Northwind</div>
+    <div>Seasonal collection</div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <p class="eyebrow">Made for the season</p>
+      <h1>Fresh finds for everyday living.</h1>
+      <p>Explore a thoughtful collection of seasonal favorites for your home and daily routine.</p>
+      <a class="button" href="#featured">Explore the collection</a>
+    </section>
+
+    <section id="featured">
+      <h2>Featured this season</h2>
+      <div class="cards">
+        <article class="card"><h3>Thoughtful essentials</h3><p>Simple picks for everyday moments.</p></article>
+        <article class="card"><h3>Seasonal favorites</h3><p>Discover something new for the season.</p></article>
+        <article class="card"><h3>Made to enjoy</h3><p>Find a little inspiration for your space.</p></article>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
