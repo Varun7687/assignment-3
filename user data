@@ -1,0 +1,61 @@
+#!/bin/bash
+set -euxo pipefail
+
+dnf install -y httpd git python3
+
+REPO_URL="https://github.com/Varun7687/assignment-3.git"
+GIT_REF="assignment-3"
+SITE_SUBDIR="assignment-3-campaign-site/site"
+REPO_DIR="/opt/northwind-campaign"
+SITE_DIR="${REPO_DIR}/${SITE_SUBDIR}"
+
+rm -rf "${REPO_DIR}"
+git clone --depth 1 --branch "${GIT_REF}" --single-branch "${REPO_URL}" "${REPO_DIR}"
+test -d "${SITE_DIR}"
+
+mkdir -p /var/www/html
+rm -rf /var/www/html/*
+cp -a "${SITE_DIR}/." /var/www/html/
+
+# Fetch instance identity using IMDSv2 (required by the Launch Template).
+TOKEN="$(curl -fsS -X PUT \
+  'http://169.254.169.254/latest/api/token' \
+  -H 'X-aws-ec2-metadata-token-ttl-seconds: 21600')"
+INSTANCE_ID="$(curl -fsS \
+  -H "X-aws-ec2-metadata-token: ${TOKEN}" \
+  'http://169.254.169.254/latest/meta-data/instance-id')"
+AZ="$(curl -fsS \
+  -H "X-aws-ec2-metadata-token: ${TOKEN}" \
+  'http://169.254.169.254/latest/meta-data/placement/availability-zone')"
+export INSTANCE_ID AZ
+
+# Add a footer to index.html without depending on a particular site template.
+python3 - <<'PY'
+import os
+import re
+
+path = "/var/www/html/index.html"
+if not os.path.isfile(path):
+    raise SystemExit(f"Expected website entry point not found: {path}")
+with open(path, encoding="utf-8") as f:
+    html = f.read()
+footer = (f'<footer>Served by instance {os.environ["INSTANCE_ID"]} '
+          f'in Availability Zone {os.environ["AZ"]}</footer>')
+if re.search(r"</body\s*>", html, flags=re.IGNORECASE):
+    html = re.sub(r"(</body\s*>)", footer + r"\n\1", html,
+                  count=1, flags=re.IGNORECASE)
+else:
+    html += "\n" + footer + "\n"
+with open(path, "w", encoding="utf-8") as f:
+    f.write(html)
+PY
+
+# Static file health check: Apache returns HTTP 200 for this path.
+printf 'ok\n' > /var/www/html/health
+chown -R apache:apache /var/www/html
+find /var/www/html -type d -exec chmod 755 {} +
+find /var/www/html -type f -exec chmod 644 {} +
+
+systemctl enable --now httpd
+systemctl is-active --quiet httpd
+curl -fsS http://localhost/health
