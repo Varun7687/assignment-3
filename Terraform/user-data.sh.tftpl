@@ -1,0 +1,8 @@
+#!/bin/bash
+# Validated Terraform inputs contain no shell quote characters.
+export REPO_URL='${repository_url}'
+export BRANCH='${repository_branch}'
+export RELEASE_REF='${release_ref}'
+export DEPLOYMENT_REVISION='${deployment_revision}'
+# The script below is inserted as text; its shell expressions are not re-templated.
+${bootstrap_script}
